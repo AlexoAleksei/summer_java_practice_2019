@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="FindBridges:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/FindBridges_jar</output-path>
+    <root id="archive" name="FindBridges.jar">
+      <element id="module-output" name="FindBridges" />
+    </root>
+  </artifact>
+</component>
