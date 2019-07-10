@@ -13,17 +13,8 @@ public class BridgeFinderTest {
         Vector<Point> bridges = new Vector();
         bridges.add(new Point(2, 3));
         bridges.add(new Point(1, 2));
-        int[][] matrix = new int[3][3];
-        matrix[0][0] = 0;
-        matrix[0][1] = 1;
-        matrix[0][2] = 0;
-        matrix[1][0] = 1;
-        matrix[1][1] = 0;
-        matrix[1][2] = 1;
-        matrix[2][0] = 0;
-        matrix[2][1] = 1;
-        matrix[2][2] = 0;
-       Object[] a = Bridge.FindBridgeT(matrix, 3);
+        int[][] matrix = {{0, 1, 0}, {1, 0, 1}, {0, 1, 0}};
+        Object[] a = Bridge.FindBridgeT(matrix, 3);
         assertArrayEquals(bridges.toArray(), a);
     }
 
@@ -36,7 +27,6 @@ public class BridgeFinderTest {
         Object[] a = Bridge.FindBridgeT(matrix, 0);
         assertArrayEquals(bridges.toArray(), a);
     }
-
 
     @org.junit.Test
     public void FindBridgeNegative() {

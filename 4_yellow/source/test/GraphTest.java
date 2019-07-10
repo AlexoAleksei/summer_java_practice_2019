@@ -11,24 +11,16 @@ public class GraphTest {
 
     @Test
     public void getVertexListTest1() {
-        int[][] matrix = new int[3][3];
-        matrix[0][0] = 0;
-        matrix[0][1] = 1;
-        matrix[0][2] = 0;
-        matrix[1][0] = 1;
-        matrix[1][1] = 0;
-        matrix[1][2] = 1;
-        matrix[2][0] = 0;
-        matrix[2][1] = 1;
-        matrix[2][2] = 0;
+        int[][] matrix = {{0, 1, 0}, {1, 0, 1}, {0, 1, 0}};
         int [] a = new int[] {0, 1, 2};
         BridgeFinder n = new BridgeFinder(matrix);
         assertArrayEquals(a, n.getVertexList());
     }
+
     @Test
     public void getVertexListTest2() {
         int[][] matrix = new int[0][0];
-        int [] a = new int[100];
+        int [] a = new int[0];
         BridgeFinder n = new BridgeFinder(matrix);
         assertArrayEquals(a, n.getVertexList());
     }
@@ -42,16 +34,7 @@ public class GraphTest {
 
     @Test
     public void getEdgeAmountTest2() {
-        int[][] matrix = new int[3][3];
-        matrix[0][0] = 0;
-        matrix[0][1] = 1;
-        matrix[0][2] = 0;
-        matrix[1][0] = 1;
-        matrix[1][1] = 0;
-        matrix[1][2] = 1;
-        matrix[2][0] = 0;
-        matrix[2][1] = 1;
-        matrix[2][2] = 0;
+        int[][] matrix = {{0, 1, 0}, {1, 0, 1}, {0, 1, 0}};
         BridgeFinder n = new BridgeFinder(matrix);
         n.getEdges();
         assertEquals(2, n.getEdgeAmount());
@@ -59,7 +42,7 @@ public class GraphTest {
 
     @Test
     public void getMatrixTest1() {
-        int[][] matrix = new int[3][3];
+        int[][] matrix = new int[100][100];
         matrix[0][0] = 0;
         matrix[0][1] = 1;
         matrix[0][2] = 0;
@@ -86,27 +69,18 @@ public class GraphTest {
         int[][] matrix = new int[0][0];
         int[][] matrix1 = new int[100][100];
         BridgeFinder n = new BridgeFinder(matrix);
-        Point [] bridges = new Point[9900];
+        Point [] bridges = new Point[0];
         Object[] k = n.getEdges();
-        for(int i = 0; i < 4950; i++) {
-            bridges[i] = new Point();
-        }
+       // for(int i = 0; i < 4950; i++) {
+       //     bridges[i] = new Point();
+       // }
         assertArrayEquals(bridges,k);
 
     }
 
     @Test
     public void getEdgesTest2() {
-        int[][] matrix = new int[3][3];
-        matrix[0][0] = 0;
-        matrix[0][1] = 1;
-        matrix[0][2] = 0;
-        matrix[1][0] = 1;
-        matrix[1][1] = 0;
-        matrix[1][2] = 1;
-        matrix[2][0] = 0;
-        matrix[2][1] = 1;
-        matrix[2][2] = 0;
+        int[][] matrix = {{0, 1, 0}, {1, 0, 1}, {0, 1, 0}};
         BridgeFinder n = new BridgeFinder(matrix);
         Point [] bridges = new Point[6];
         for(int i = 0; i < 3; i++) {
@@ -125,16 +99,7 @@ public class GraphTest {
 
     @Test
     public void getBridgesTest1() {
-        int[][] matrix = new int[3][3];
-        matrix[0][0] = 0;
-        matrix[0][1] = 1;
-        matrix[0][2] = 0;
-        matrix[1][0] = 1;
-        matrix[1][1] = 0;
-        matrix[1][2] = 1;
-        matrix[2][0] = 0;
-        matrix[2][1] = 1;
-        matrix[2][2] = 0;
+        int[][] matrix = {{0, 1, 0}, {1, 0, 1}, {0, 1, 0}};
         BridgeFinder n = new BridgeFinder(matrix);
         Vector<Point> bridges = new Vector();
         bridges.add(new Point(2, 3));
