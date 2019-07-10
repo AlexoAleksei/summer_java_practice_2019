@@ -1,11 +1,9 @@
-import gui.Window;
+import gui.*;
 
 import javax.swing.*;
 
 public class FindBridges {
-    public FindBridges() { /* compiled code */ }
-
-    public static void main(java.lang.String[] args) {
-        JFrame myWindow = new Window();
-         }
+    public static void main(String[] args){
+        JFrame window = new Window();
+    }
 }
