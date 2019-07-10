@@ -2,17 +2,15 @@ package gui;
 
 import draw.*;
 import source.*;
-//import sun.corba.Bridge;
-
 import javax.swing.*;
 import java.awt.*;
 
 public class GraphViewPanel extends JPanel {
-    private draw.Drawing graphDraw;
+    private Drawing graphDraw;
     private BridgeFinder graph;
 
     public GraphViewPanel(){
-        graphDraw = new draw.Drawing();
+        graphDraw = new Drawing();
     }
 
     @Override
@@ -25,7 +23,12 @@ public class GraphViewPanel extends JPanel {
         if(graph == null)
             return;
 
-        graphDraw.draw(g2);
+        if(graph.getConditionList() == null || graph.getConditionList().size() < 1) {
+            graphDraw.draw(g2);
+        }
+        else {
+            graphDraw.drawWithCondition(g2);
+        }
     }
 
     public BridgeFinder getGraph(){
@@ -37,6 +40,6 @@ public class GraphViewPanel extends JPanel {
         graphDraw.setCenterCoordinates(new Point(this.getVisibleRect().width/2, this.getVisibleRect().height/2));
     }
 
-    public draw.Drawing getGraphDraw(){ return graphDraw; }
+    public Drawing getGraphDraw(){ return graphDraw; }
 }
 
