@@ -8,30 +8,28 @@ public class Graph {
     protected final int VERTEX_MAX = 100;
     protected int[] vertexList;
     protected int[][] matrix;
-    private int edgeAmount = 0;
+    protected int edgeAmount = 0;
     protected Vector<Point> bridges;
-    protected boolean Bridge;
 
     public Graph(){
-        bridges = new Vector();
-        vertexList = new int[VERTEX_MAX];
+        bridges = new Vector<Point>();
+        vertexList = new int[0];
         matrix = new int[VERTEX_MAX][VERTEX_MAX];
-        Bridge = false;
     }
 
     public int[] getVertexList(){
         return vertexList;
     }
+    //public void setVertexList(int[] vertexList){ this.vertexList = vertexList; }
+
+    public int[][] getMatrix(){
+        return matrix;
+    }
+    //public void setMatrix(int[][] matrix){ this.matrix = matrix; }
 
     public int getEdgeAmount() {
         return edgeAmount;
     }
-
-    public int[][] getMatrix(){
-       return matrix;
-    }
-
-
 
     public Point[] getEdges() {  //Возвращает массив пар индексов: "вершина старт" - "вершина конец"
         Point[] alledges = new Point[2 * getVertexList().length * (getVertexList().length - 1) / 2];
@@ -52,7 +50,6 @@ public class Graph {
         return alledges;
     }
 
-
     public void printBridgesToTextAre(JTextArea textArea){
         if(bridges.size() <= 0)
             textArea.append("Мостов не обнаружено" + "\n");
@@ -63,5 +60,12 @@ public class Graph {
     public Vector<Point> getBridges(){
         return bridges;
     }
-}
 
+    public void setBridges(Vector<Point> bridges){
+        this.bridges = bridges;
+    }
+
+    public void clearBridges(){
+        bridges.clear();
+    }
+}

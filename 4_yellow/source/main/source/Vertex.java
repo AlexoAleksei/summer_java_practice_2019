@@ -12,6 +12,12 @@ public class Vertex {
         color = Color.CYAN;
     }
 
+    public Vertex(Point center, int side) {
+        vertexCenter = center;
+        this.side = side;
+        color = Color.CYAN;
+    }
+
     public Vertex(int side) {
         vertexCenter = new Point();
         color = Color.CYAN;
@@ -23,8 +29,6 @@ public class Vertex {
     }
 
     public void setVertexCenter(Point center) {
-        //vertexCenter.x = x;
-        //vertexCenter.y = y;
         vertexCenter = center;
     }
 

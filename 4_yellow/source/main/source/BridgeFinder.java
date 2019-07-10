@@ -1,10 +1,7 @@
 package source;
 
-import java.awt.Point;
+import java.awt.*;
 import java.util.Vector;
-import javax.swing.JFrame;
-//import gui.Window;
-
 
 public class BridgeFinder extends Graph {
     private boolean[] used;
@@ -12,62 +9,94 @@ public class BridgeFinder extends Graph {
     private int[] tin;
     private int[] fup;
     private int q = -1;
+    private Vector<Condition> conditionList;
+    private int lastVisitedVertex;
 
-    public BridgeFinder() {
-        this.used = new boolean[this.vertexList.length];
-        this.tin = new int[this.vertexList.length];
-        this.fup = new int[this.vertexList.length];
+    public BridgeFinder(){
+        used = new boolean[vertexList.length];
+        tin = new int[vertexList.length];
+        fup = new int[vertexList.length];
+        conditionList = new Vector<Condition>();
     }
 
-    public BridgeFinder(int[][] matrix) {
+    public BridgeFinder(int[][] matrix){
         if(matrix.length != 0) {
-            this.bridges = new Vector();
-            this.matrix = matrix;
-            this.vertexList = new int[matrix[0].length];
-
-            for (int i = 0; i < this.vertexList.length; this.vertexList[i] = i++) {
+            bridges = new Vector<Point>();
+            setMatrixValues(matrix);
+            vertexList = new int[matrix[0].length];
+            for (int i = 0; i < vertexList.length; i++) {
+                vertexList[i] = i;
             }
 
-            this.used = new boolean[this.vertexList.length];
-            this.tin = new int[this.vertexList.length];
-            this.fup = new int[this.vertexList.length];
+            used = new boolean[vertexList.length];
+            tin = new int[vertexList.length];
+            fup = new int[vertexList.length];
+        }
+        conditionList = new Vector<Condition>();
+    }
+
+    //метод добавления вершины к vertexList
+    public void addNewVertex(){
+        vertexList = new int[vertexList.length+1];
+        for (int i = 0; i < vertexList.length; i++) {
+            vertexList[i] = i;
+        }
+        used = new boolean[vertexList.length];
+        tin = new int[vertexList.length];
+        fup = new int[vertexList.length];
+    }
+
+    //инициализирует ребра в основной матрице 100х100 по переданной
+    private void setMatrixValues(int[][] newMatrix){
+        for(int i=0; i < newMatrix.length; i++){
+            for(int k=0; k < newMatrix[i].length; k++){
+                this.matrix[i][k] = newMatrix[i][k];
+            }
         }
     }
 
-    public void startFind() {
-        this.timer = 0;
-
-        int i;
-        for(i = 0; i < this.vertexList.length; ++i) {
-            this.used[i] = false;
-        }
-
-        for(i = 0; i < this.vertexList.length; ++i) {
-            if (!this.used[i]) {
-                this.DFS(i, q);
-            }
-        }
-
+    public void addNewEdge(int startV, int endV){
+        matrix[startV][endV] = 1;
+        matrix[endV][startV] = 1;
+        edgeAmount++;
     }
 
-    private void DFS(int v, int p) {
-        this.used[v] = true;
-        this.tin[v] = this.fup[v] = this.timer++;
-        for(int i = 0; i < this.matrix[v].length; ++i) {
-            if (this.matrix[v][i] != 0 && i != p) {
-                if (this.used[i]) {
-                    this.fup[v] = Math.min(this.fup[v], this.tin[i]);
-                } else {
-                    this.DFS(i, v);
-                    this.fup[v] = Math.min(this.fup[v], this.fup[i]);
-                    if (this.fup[i] > this.tin[v]) {
-                        this.Bridge = true;
-                        this.bridges.add(new Point(v + 1, i + 1));
-                    }
+    public void startFind(){
+        timer = 0;
+        for(int i = 0; i < vertexList.length; i++){
+            used[i] = false;
+        }
+        for(int i=0; i < vertexList.length; i++){
+            if(!used[i]){
+                DFS(i, q);
+                q = -1;
+            }
+        }
+        conditionList.add(new Condition(new Vector<Point>(bridges), makeNewUsed(used), lastVisitedVertex));
+        used[lastVisitedVertex] = true;
+        conditionList.add(new Condition(new Vector<Point>(bridges), makeNewUsed(used), -1));
+    }
+
+    private void DFS(int v, int p){
+        conditionList.add(new Condition(new Vector<Point>(bridges), makeNewUsed(used), v));
+        lastVisitedVertex = v;
+        used[v] = true;
+        tin[v] = fup[v] = timer++;
+        for(int i=0; i < matrix[v].length; ++i){
+            if(matrix[v][i] == 0 || i == p){
+                continue;
+            }
+            if(used[i]){
+                fup[v] = Math.min(fup[v], tin[i]);
+            }
+            else {
+                DFS(i, v);
+                fup[v] = Math.min(fup[v], fup[i]);
+                if(fup[i] > tin[v]){
+                    bridges.add(new Point(v+1, i+1));
                 }
             }
         }
-
     }
 
     public Object[] FindBridgeT(int[][] matrix, int vertex){
@@ -82,4 +111,13 @@ public class BridgeFinder extends Graph {
 
     }
 
+    public Vector<Condition> getConditionList(){ return conditionList; }
+
+    private boolean[] makeNewUsed(boolean[] used){
+        boolean[] newUsed = new boolean[used.length];
+        for(int i=0; i< used.length; i++){
+            newUsed[i] = used[i];
+        }
+        return newUsed;
+    }
 }
