@@ -37,7 +37,7 @@ public class BridgeFinder extends Graph {
 
     //метод добавления вершины к vertexList
     public void addNewVertex(){
-        vertexList = new int[vertexList.length+1];
+        vertexList = new int[vertexList.length + 1];
         for (int i = 0; i < vertexList.length; i++) {
             vertexList[i] = i;
         }
@@ -55,24 +55,33 @@ public class BridgeFinder extends Graph {
         }
     }
 
+    //добавление ребра
     public void addNewEdge(int startV, int endV){
         matrix[startV][endV] = 1;
         matrix[endV][startV] = 1;
         edgeAmount++;
     }
 
+    //удаление ребра
+    public void deleteEdge(int startV, int endV){
+        matrix[startV][endV] = 0;
+        matrix[endV][startV] = 0;
+        if(edgeAmount > 0)
+            edgeAmount--;
+    }
+
     public void startFind(){
+        conditionList.add(new Condition(new Vector<Point>(bridges), makeNewUsed(used), -1)); //дефолтное состояние для возврата к редактированию графа
         timer = 0;
         for(int i = 0; i < vertexList.length; i++){
             used[i] = false;
         }
-        for(int i=0; i < vertexList.length; i++){
-            if(!used[i]){
+        for(int i=0; i < vertexList.length; i++) {
+            if (!used[i]) {
                 DFS(i, q);
                 q = -1;
             }
         }
-        conditionList.add(new Condition(new Vector<Point>(bridges), makeNewUsed(used), lastVisitedVertex));
         used[lastVisitedVertex] = true;
         conditionList.add(new Condition(new Vector<Point>(bridges), makeNewUsed(used), -1));
     }

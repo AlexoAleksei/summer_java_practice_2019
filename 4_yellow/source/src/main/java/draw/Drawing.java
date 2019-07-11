@@ -17,7 +17,7 @@ public class Drawing implements Drawable {
     }
 
     public void draw(Graphics2D g) {
-        if(vertex == null)
+        if(vertex == null || vertex.size() == 0)
             return;
         int ovalSide = vertex.elementAt(0).getSide();
         for(int i = 0; i < edges.size(); i++) {
@@ -42,7 +42,7 @@ public class Drawing implements Drawable {
     public void drawWithCondition(Graphics2D g){
         graph.setBridges(condition.getBridges());
         setBridges();
-        if(vertex == null)
+        if(vertex == null || vertex.size() == 0)
             return;
         int ovalSide = vertex.elementAt(0).getSide();
         for(int i = 0; i < edges.size(); i++) {
@@ -75,7 +75,7 @@ public class Drawing implements Drawable {
     public void setGraph(Graph graph){
         this.graph = graph;
         for(int i = 0; i < graph.getVertexList().length; i++) {
-            vertex.add(new Vertex(50 + vertex.size()));
+            vertex.add(new Vertex(50));
         }
         edges = new Vector<Edge>();
         setAllCoordinates();
@@ -91,12 +91,8 @@ public class Drawing implements Drawable {
                     (int)(center.y + R * Math.sin((double)360/graph.getVertexList().length + 2 * Math.PI * i / graph.getVertexList().length))));
         }
         Point[] edges_arr = graph.getEdges();
-        if(edges_arr == null)
-            System.out.println("Ребер нет, но вы держитесь");
-        else {
-            for (int i = 0; i < graph.getEdgeAmount(); i++) {
-                edges.add(new Edge(vertex.elementAt(edges_arr[i].x), vertex.elementAt(edges_arr[i].y)));
-            }
+        for (int i = 0; i < graph.getEdgeAmount(); i++) {
+            edges.add(new Edge(vertex.elementAt(edges_arr[i].x), vertex.elementAt(edges_arr[i].y)));
         }
     }
 

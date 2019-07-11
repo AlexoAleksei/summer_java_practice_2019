@@ -20,16 +20,15 @@ public class Graph {
     public int[] getVertexList(){
         return vertexList;
     }
-    //public void setVertexList(int[] vertexList){ this.vertexList = vertexList; }
 
     public int[][] getMatrix(){
         return matrix;
     }
-    //public void setMatrix(int[][] matrix){ this.matrix = matrix; }
 
     public int getEdgeAmount() {
         return edgeAmount;
     }
+    public void decrementEdgeAmount() { edgeAmount--; }
 
     public Point[] getEdges() {  //Возвращает массив пар индексов: "вершина старт" - "вершина конец"
         Point[] alledges = new Point[2 * getVertexList().length * (getVertexList().length - 1) / 2];
@@ -67,5 +66,30 @@ public class Graph {
 
     public void clearBridges(){
         bridges.clear();
+    }
+
+    public void deleteVertexFromMatrix(int index){
+        for(int i = 0; i < vertexList.length; i++) {
+            matrix[index][i] = 0;
+            matrix[i][index] = 0;
+        }
+        for(int i = index; i < vertexList.length - 1; i++) {
+            for(int j = 0; j < vertexList.length; j++) {
+                matrix[i][j] = matrix[i + 1][j];
+            }
+        }
+        for(int i = index; i < vertexList.length - 1; i++) {
+            for(int j = 0; j < vertexList.length; j++) {
+                matrix[j][i] = matrix[j][i + 1];
+            }
+        }
+        for(int i = 0; i < vertexList.length; i++) {
+            matrix[vertexList.length - 1][i] = 0;
+            matrix[i][vertexList.length - 1] = 0;
+        }
+        vertexList = new int[vertexList.length - 1];
+        for (int i = 0; i < vertexList.length; i++) {
+            vertexList[i] = i;
+        }
     }
 }

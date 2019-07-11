@@ -36,9 +36,5 @@ public class Vertex {
         return color;
     }
 
-    public void setColor(Color newColor) {
-        color = newColor;
-    }
-
     public int getSide(){ return side; }
 }

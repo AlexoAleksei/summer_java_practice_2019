@@ -21,6 +21,11 @@ public class Window extends JFrame {
     private boolean pressedVertexForEdge;
     private int indexVertexForEdge;
 
+    private boolean pressedDeleteVertex;
+    private boolean pressedDeleteEdge;
+
+    private boolean pressedFindBridge;
+
     private int conditionIterator = 0;
 
     public Window(){
@@ -31,13 +36,6 @@ public class Window extends JFrame {
         setSize(500, 500);
         setMinimumSize(Toolkit.getDefaultToolkit().getScreenSize());
         setExtendedState(MAXIMIZED_BOTH);
-
-        /*
-        // MenuBar
-        //JMenuBar menuBar = new JMenuBar();
-        //menuBar.add(new JMenu("Справка"));
-        //setJMenuBar(menuBar);
-         */
 
         // Panels
         graphPanel = new GraphViewPanel();
@@ -58,7 +56,7 @@ public class Window extends JFrame {
                 indexVertexForDrag = -1;
 
                 if(pressedAddEdge) {
-                    if(pressedVertexForEdge == false) {
+                    if(!pressedVertexForEdge) {
                         Vector<Vertex> vertices = graphPanel.getGraphDraw().getVertices();
                         for (int i = 0; i < vertices.size(); i++) {
                             if (Math.sqrt(Math.pow(e.getX() - vertices.elementAt(i).getVertexCenter().x, 2) + Math.pow(e.getY() - vertices.elementAt(i).getVertexCenter().y, 2))
@@ -100,13 +98,95 @@ public class Window extends JFrame {
                         pressedVertexForEdge = false;
                     }
                 }
-            }
 
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                super.mouseReleased(e);
+                if(pressedDeleteVertex) {
+                    Vector<Vertex> vertices = graphPanel.getGraphDraw().getVertices();
+                    for (int i = 0; i < vertices.size(); i++) {
+                        if (Math.sqrt(Math.pow(e.getX() - vertices.elementAt(i).getVertexCenter().x, 2) + Math.pow(e.getY() - vertices.elementAt(i).getVertexCenter().y, 2))
+                                < (double) vertices.elementAt(i).getSide() / 2) {
+                            //удаление вершины из матрицы и vertexList (переинициализация)
+                            graphPanel.getGraph().deleteVertexFromMatrix(i);
 
+                            //удаление ребер из вектора ребер в graphDraw
+                            Vector<Edge> edges = graphPanel.getGraphDraw().getEdges();
+                            for(int j = 0; j < edges.size(); j++){
+                                if(edges.elementAt(j).getStartV() == graphPanel.getGraphDraw().getVertices().elementAt(i) ||
+                                    edges.elementAt(j).getEndV() == graphPanel.getGraphDraw().getVertices().elementAt(i))
+                                {
+                                    edges.removeElementAt(j--);
+                                    graphPanel.getGraph().decrementEdgeAmount();
+                                }
+                            }
 
+                            //удаление вершины из graphDraw вершин
+                            graphPanel.getGraphDraw().getVertices().removeElementAt(i);
+
+                            pressedDeleteVertex = false;
+                            graphPanel.getGraph().getConditionList().clear();
+                            graphPanel.getGraphDraw().removeBridges();
+                            graphPanel.repaint(graphPanel.getVisibleRect());
+                        }
+                    }
+                }
+
+                if(pressedDeleteEdge){
+                    if(!pressedVertexForEdge) {
+                        Vector<Vertex> vertices = graphPanel.getGraphDraw().getVertices();
+                        for (int i = 0; i < vertices.size(); i++) {
+                            if (Math.sqrt(Math.pow(e.getX() - vertices.elementAt(i).getVertexCenter().x, 2) + Math.pow(e.getY() - vertices.elementAt(i).getVertexCenter().y, 2))
+                                    < (double) vertices.elementAt(i).getSide() / 2) {
+                                indexVertexForEdge = i;
+                                pressedVertexForEdge = true;
+                                break;
+                            }
+                        }
+                    }
+                    else {
+                        int current = -1;
+                        Vector<Vertex> vertices = graphPanel.getGraphDraw().getVertices();
+                        for (int i = 0; i < vertices.size(); i++) {
+                            if (Math.sqrt(Math.pow(e.getX() - vertices.elementAt(i).getVertexCenter().x, 2) + Math.pow(e.getY() - vertices.elementAt(i).getVertexCenter().y, 2))
+                                    < (double) vertices.elementAt(i).getSide() / 2) {
+                                current = i;
+                                break;
+                            }
+                        }
+
+                        if(current > -1 && current != indexVertexForEdge) {
+                            if(graphPanel.getGraph().getMatrix()[indexVertexForEdge][current] == 0){
+                                indexVertexForEdge = -1;
+                                pressedAddEdge = false;
+                                pressedVertexForEdge = false;
+                                return;
+                            }
+
+                            //удаление ребра из Graph
+                            graphPanel.getGraph().deleteEdge(indexVertexForEdge, current);
+
+                            //удаление ребра из graphDraw
+                            Vector<Edge> edges = graphPanel.getGraphDraw().getEdges();
+                            for(int j = 0; j < edges.size(); j++){
+                                if((edges.elementAt(j).getStartV() == graphPanel.getGraphDraw().getVertices().elementAt(indexVertexForEdge) ||
+                                        edges.elementAt(j).getEndV() == graphPanel.getGraphDraw().getVertices().elementAt(indexVertexForEdge)) &&
+                                        (edges.elementAt(j).getStartV() == graphPanel.getGraphDraw().getVertices().elementAt(current) ||
+                                        edges.elementAt(j).getEndV() == graphPanel.getGraphDraw().getVertices().elementAt(current)))
+                                {
+                                    edges.removeElementAt(j);
+                                    //graphPanel.getGraph().decrementEdgeAmount();
+                                    break;
+                                }
+                            }
+
+                            graphPanel.getGraph().getConditionList().clear();
+                            graphPanel.getGraphDraw().removeBridges();
+                            graphPanel.repaint(graphPanel.getVisibleRect());
+                        }
+
+                        indexVertexForEdge = -1;
+                        pressedDeleteEdge = false;
+                        pressedVertexForEdge = false;
+                    }
+                }
             }
         });
 
@@ -138,7 +218,6 @@ public class Window extends JFrame {
                 }
 
                 pressedVertexForDrag = false;
-                //indexVertexForDrag = -1;
                 graphPanel.repaint(graphPanel.getVisibleRect());
             }
         });
@@ -151,6 +230,24 @@ public class Window extends JFrame {
 
         final JButton buttonAddEdge = new JButton("Добавить ребро");
         buttonAddEdge.addActionListener(new ButtonAddEdge());
+
+        final JButton buttonDeleteVertex = new JButton("Удалить вершину");
+        buttonDeleteVertex.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                pressedVertexForEdge = false;
+                pressedDeleteEdge = false;
+                pressedDeleteVertex = true;
+            }
+        });
+
+        final JButton buttonDeleteEdge = new JButton("Удалить ребро");
+        buttonDeleteEdge.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                pressedVertexForEdge = false;
+                pressedDeleteVertex = false;
+                pressedDeleteEdge = true;
+            }
+        });
 
         final JButton buttonFirstCondition = new JButton("Begin");
         buttonFirstCondition.addActionListener(new ButtonFirstCondition());
@@ -169,7 +266,6 @@ public class Window extends JFrame {
         buttonEndCondition.setEnabled(false);
 
         JButton buttonReadFile = new JButton("Считать из файла");
-        //buttonReadFile.addActionListener(new ButtonFileRead());
         buttonReadFile.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 try {
@@ -206,19 +302,44 @@ public class Window extends JFrame {
                     return;
                 }
 
-                buttonAddVertex.setEnabled(false);
-                buttonAddEdge.setEnabled(false);
-                buttonFirstCondition.setEnabled(true);
-                buttonPrevCondition.setEnabled(true);
-                buttonNextCondition.setEnabled(true);
-                buttonEndCondition.setEnabled(true);
+                if(!pressedFindBridge) {
+                    pressedFindBridge = true;
 
-                graphPanel.getGraphDraw().removeBridges();
-                graphPanel.getGraph().startFind();
-                graphPanel.getGraph().printBridgesToTextAre(textArea);
+                    buttonAddVertex.setEnabled(false);
+                    buttonAddEdge.setEnabled(false);
+                    buttonDeleteEdge.setEnabled(false);
+                    buttonDeleteVertex.setEnabled(false);
+                    buttonFirstCondition.setEnabled(true);
+                    buttonPrevCondition.setEnabled(true);
+                    buttonNextCondition.setEnabled(true);
+                    buttonEndCondition.setEnabled(true);
 
-                conditionIterator = 0;
-                graphPanel.getGraphDraw().setCondition(graphPanel.getGraph().getConditionList().elementAt(conditionIterator));
+                    graphPanel.getGraphDraw().removeBridges();
+                    graphPanel.getGraph().startFind();
+                    graphPanel.getGraph().printBridgesToTextAre(textArea);
+
+                    conditionIterator = 1;
+                    graphPanel.getGraphDraw().setCondition(graphPanel.getGraph().getConditionList().elementAt(conditionIterator));
+                }
+                else {
+                    pressedFindBridge = false;
+
+                    buttonAddVertex.setEnabled(true);
+                    buttonAddEdge.setEnabled(true);
+                    buttonDeleteEdge.setEnabled(true);
+                    buttonDeleteVertex.setEnabled(true);
+                    buttonFirstCondition.setEnabled(false);
+                    buttonPrevCondition.setEnabled(false);
+                    buttonNextCondition.setEnabled(false);
+                    buttonEndCondition.setEnabled(false);
+
+                    graphPanel.getGraphDraw().removeBridges();
+
+                    conditionIterator = 0;
+                    graphPanel.getGraphDraw().setCondition(graphPanel.getGraph().getConditionList().elementAt(conditionIterator));
+
+                    graphPanel.getGraph().getConditionList().clear();
+                }
 
                 graphPanel.repaint(graphPanel.getVisibleRect());
             }
@@ -233,10 +354,12 @@ public class Window extends JFrame {
         // Tool Bar
         JPanel toolBar = new JPanel(new FlowLayout(FlowLayout.LEFT));
         toolBar.add(buttonReadFile);
-        toolBar.add(buttonFindBridge);
-        toolBar.add(log);
         toolBar.add(buttonAddVertex);
         toolBar.add(buttonAddEdge);
+        toolBar.add(buttonDeleteVertex);
+        toolBar.add(buttonDeleteEdge);
+        toolBar.add(log);
+        toolBar.add(buttonFindBridge);
         toolBar.add(buttonFirstCondition);
         toolBar.add(buttonPrevCondition);
         toolBar.add(buttonNextCondition);
@@ -244,52 +367,6 @@ public class Window extends JFrame {
         toolBar.setBorder(BorderFactory.createRaisedBevelBorder());
         return toolBar;
     }
-
-    /*
-    //кнопка "Считать с файла"
-    public class ButtonFileRead implements ActionListener {
-        public void actionPerformed(ActionEvent e) {
-            try {
-                graphPanel.setGraph(new BridgeFinder(readFile()));
-            }
-            catch (NullPointerException ex){
-                textArea.append("Файл не считан.\n");
-                return;
-            }
-
-            //для того, чтобы при инициализированном графе, когда вызывается кнопка "считать файл" и закрывается,
-            //а затем вызыввался поиск мостов, не падала программа
-            graphPanel.getGraphDraw().getVertices().clear();
-            graphPanel.getGraph().getConditionList().clear();
-
-            graphPanel.getGraphDraw().setGraph(graphPanel.getGraph());
-            textArea.append("Файл успешно считан.\n");
-            graphPanel.repaint(graphPanel.getVisibleRect());
-        }
-    }
-
-     */
-
-    /*
-    //кнопка "Поиск мостов"
-    public class ButtonFindBridge implements ActionListener {
-        public void actionPerformed(ActionEvent e){
-
-            if(graphPanel.getGraph() == null){
-                textArea.append("Граф не инициализирован.\n");
-                return;
-            }
-            graphPanel.getGraphDraw().removeBridges();
-            graphPanel.getGraph().startFind();
-            graphPanel.getGraph().printBridgesToTextAre(textArea);
-
-            conditionIterator = 0;
-            graphPanel.getGraphDraw().setCondition(graphPanel.getGraph().getConditionList().elementAt(conditionIterator));
-
-            graphPanel.repaint(graphPanel.getVisibleRect());
-        }
-    }
-     */
 
     //кнопка "Добавить вершину"
     public class ButtonAddVertex implements ActionListener {
@@ -313,6 +390,8 @@ public class Window extends JFrame {
     //кнопка "Добавить ребро"
     public class ButtonAddEdge implements ActionListener {
         public void actionPerformed(ActionEvent e){
+            pressedDeleteEdge = false;
+            pressedVertexForEdge = false;
             pressedAddEdge = true;
         }
     }
@@ -321,7 +400,7 @@ public class Window extends JFrame {
     public class ButtonFirstCondition implements ActionListener {
         public void actionPerformed(ActionEvent e){
             graphPanel.getGraphDraw().clearBridges();
-            conditionIterator = 0;
+            conditionIterator = 1;
             graphPanel.getGraphDraw().setCondition(graphPanel.getGraph().getConditionList().elementAt(conditionIterator));
             graphPanel.repaint(graphPanel.getVisibleRect());
         }
@@ -343,12 +422,12 @@ public class Window extends JFrame {
     //кнопка "Предыдущее состояние"
     public class ButtonPrevCondition implements ActionListener {
         public void actionPerformed(ActionEvent e){
-            if(conditionIterator > 0) {
+            if(conditionIterator > 1) {
                 graphPanel.getGraphDraw().clearBridges();
                 graphPanel.getGraphDraw().setCondition(graphPanel.getGraph().getConditionList().elementAt(--conditionIterator));
             }
             else {
-                textArea.append("Достигнуто конечное состояние алгоритма\n");
+                textArea.append("Достигнуто начальное состояние алгоритма\n");
             }
             graphPanel.repaint(graphPanel.getVisibleRect());
         }
